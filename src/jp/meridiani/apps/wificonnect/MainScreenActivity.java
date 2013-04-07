@@ -1,6 +1,6 @@
-package jp.meridiani.apps.wifionnect;
+package jp.meridiani.apps.wificonnect;
 
-import jp.meridiani.apps.wifionnect.util.SystemUiHider;
+import jp.meridiani.apps.wificonnect.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;

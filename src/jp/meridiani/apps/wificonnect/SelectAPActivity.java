@@ -1,4 +1,4 @@
-package jp.meridiani.apps.wifionnect;
+package jp.meridiani.apps.wificonnect;
 
 import android.annotation.TargetApi;
 import android.content.Context;

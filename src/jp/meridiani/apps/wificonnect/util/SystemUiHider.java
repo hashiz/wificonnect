@@ -1,4 +1,4 @@
-package jp.meridiani.apps.wifionnect.util;
+package jp.meridiani.apps.wificonnect.util;
 
 import android.app.Activity;
 import android.os.Build;

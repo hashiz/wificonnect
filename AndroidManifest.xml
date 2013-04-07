@@ -14,7 +14,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="jp.meridiani.apps.wifionnect.MainScreenActivity"
+            android:name="jp.meridiani.apps.wificonnect.MainScreenActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
             android:theme="@style/FullscreenTheme" >
@@ -25,7 +25,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="jp.meridiani.apps.wifionnect.SelectAPActivity"
+            android:name="jp.meridiani.apps.wificonnect.SelectAPActivity"
             android:label="@string/title_activity_select_ap" >
         </activity>
     </application>
