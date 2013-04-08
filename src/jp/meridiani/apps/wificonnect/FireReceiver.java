@@ -5,6 +5,8 @@ import java.util.List;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
@@ -17,8 +19,6 @@ public class FireReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		long starttime;
-
 		if (!com.twofortyfouram.locale.Intent.ACTION_FIRE_SETTING.equals(intent.getAction())) {
         	return;
         }
@@ -32,60 +32,24 @@ public class FireReceiver extends BroadcastReceiver {
         }
         WifiManager wifi = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
         List<WifiConfiguration>wifiList = wifi.getConfiguredNetworks();
-        int currentId = wifi.getConnectionInfo().getNetworkId();
+        WifiConfiguration desireWifiConf = null;
         for (WifiConfiguration wifiConf : wifiList) {
         	if (ssid.equals(wifiConf.SSID)) {
         		if (wifiConf.status == WifiConfiguration.Status.CURRENT) {
             		Toast.makeText(context, "Already connect " + ssid, Toast.LENGTH_LONG).show();
             		return;
         		}
-        		currentId = wifiConf.networkId;
+        		desireWifiConf = wifiConf;
         		break;
         	}
         }
-		Toast.makeText(context, "Connect to " + ssid, Toast.LENGTH_LONG).show();
+		Toast.makeText(context, "Connecting " + desireWifiConf.SSID, Toast.LENGTH_LONG).show();
 
-		// disconnect current network
-		wifi.disconnect();
-
-		// wait disconnect
-        starttime = System.currentTimeMillis();
-        while (wifi.getConnectionInfo().getSupplicantState() != SupplicantState.DISCONNECTED) {
-        	if (System.currentTimeMillis() - starttime > 10 * 1000) {
-        		// time out
-        		break;
-        	}
-        	try {
-				Thread.sleep(500);
-			}
-        	catch (InterruptedException e) {
-			}
-        }
+        context.registerReceiver(new WifiStateReceiver(System.currentTimeMillis(),
+				10*1000,desireWifiConf.networkId,desireWifiConf.SSID),
+				new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         // disable other networks
-        wifi.enableNetwork(currentId, true);
-
-        wifi.reconnect();
-
-        // wait connect
-        starttime = System.currentTimeMillis();
-        while (wifi.getConnectionInfo().getSupplicantState() != SupplicantState.COMPLETED) {
-        	if (System.currentTimeMillis() - starttime > 10 * 1000) {
-        		break;
-        	}
-        }
-
-        if (wifi.getConnectionInfo().getNetworkId() == currentId) {
-	        // success
-			Toast.makeText(context, "Connected " + ssid, Toast.LENGTH_LONG).show();
-        }
-        else {
-			// failure
-			Toast.makeText(context, "Can't connect " + ssid, Toast.LENGTH_LONG).show();
-        }
-        // set all enable
-        for (WifiConfiguration wifiConf : wifiList) {
-        	wifi.enableNetwork(wifiConf.networkId, false);
-        }
+        wifi.enableNetwork(desireWifiConf.networkId, true);
 	}
 }
