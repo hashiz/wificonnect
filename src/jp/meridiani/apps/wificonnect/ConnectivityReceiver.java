@@ -47,12 +47,6 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 			Toast.makeText(context, "Failed connect to " + mDesireSSID, Toast.LENGTH_LONG).show();
 		}
 		finally {
-			// set all enable
-			WifiManager wifiMgr = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
-	        List<WifiConfiguration>wifiList = wifiMgr.getConfiguredNetworks();
-	        for (WifiConfiguration wifiConf : wifiList) {
-	        	wifiMgr.enableNetwork(wifiConf.networkId, false);
-	        }
 	        context.unregisterReceiver(this);
 		}
 	}
