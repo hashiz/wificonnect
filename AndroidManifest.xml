@@ -34,7 +34,9 @@
                 <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING"/>
             </intent-filter>
         </activity>
-        <receiver android:name="FireReceiver">
+        <receiver android:name="jp.meridiani.apps.wificonnect.FireReceiver"
+            android:exported="true"
+            android:process=":background">
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING"/>
             </intent-filter>

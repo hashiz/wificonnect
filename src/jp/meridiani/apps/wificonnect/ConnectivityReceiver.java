@@ -31,23 +31,24 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 		if (!action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
 			return;
 		}
-		try {
-			ConnectivityManager conMgr = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
-			WifiManager wifiMgr = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
-	
-			NetworkInfo netInfo = conMgr.getActiveNetworkInfo();
-			if (netInfo.isConnected() && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+		ConnectivityManager conMgr = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		WifiManager wifiMgr = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
+
+		NetworkInfo netInfo = conMgr.getActiveNetworkInfo();
+		if (netInfo.isConnected()) {
+			if (netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
 				String ssid = wifiMgr.getConnectionInfo().getSSID();
 				int networkId = wifiMgr.getConnectionInfo().getNetworkId();
 				if (networkId == mDesireNetworkId) {
 					Toast.makeText(context, "Connected " + ssid, Toast.LENGTH_LONG).show();
+					context.getApplicationContext().unregisterReceiver(this);
 					return;
 				}
 			}
-			Toast.makeText(context, "Failed connect to " + mDesireSSID, Toast.LENGTH_LONG).show();
 		}
-		finally {
-	        context.unregisterReceiver(this);
+		if ( System.currentTimeMillis() - mStartTime > mMaxWait ) {
+			Toast.makeText(context, "Failed connect to " + mDesireSSID, Toast.LENGTH_LONG).show();
+			context.getApplicationContext().unregisterReceiver(this);
 		}
 	}
 }

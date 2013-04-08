@@ -46,7 +46,7 @@ public class FireReceiver extends BroadcastReceiver {
         }
 		Toast.makeText(context, "Connecting " + desireWifiConf.SSID, Toast.LENGTH_LONG).show();
 
-        context.registerReceiver(
+        context.getApplicationContext().registerReceiver(
         		new ConnectivityReceiver(
         				System.currentTimeMillis(),
         				10*1000,
@@ -57,12 +57,11 @@ public class FireReceiver extends BroadcastReceiver {
         // disable other networks
         wifi.enableNetwork(desireWifiConf.networkId, true);
 
+        wifi.reconnect();
+
         // re-enable all networks
         for (WifiConfiguration wifiConf : wifiList) {
        		wifi.enableNetwork(wifiConf.networkId, false);
         }
-
-        // fire
-        wifi.saveConfiguration();
 	}
 }
