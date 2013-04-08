@@ -11,14 +11,14 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.widget.Toast;
 
-public class WifiStateReceiver extends BroadcastReceiver {
+public class ConnectivityReceiver extends BroadcastReceiver {
 
 	protected long  mStartTime;
 	protected long  mMaxWait;
 	protected int   mDesireNetworkId;
 	protected String mDesireSSID;
 
-	public WifiStateReceiver(long startTime, long maxWait, int desireNetworkId, String desireSSID)	{
+	public ConnectivityReceiver(long startTime, long maxWait, int desireNetworkId, String desireSSID)	{
 		mStartTime = startTime;
 		mMaxWait   = maxWait;
 		mDesireNetworkId  = desireNetworkId;

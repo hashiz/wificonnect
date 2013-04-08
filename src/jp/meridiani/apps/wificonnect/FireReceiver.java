@@ -31,6 +31,10 @@ public class FireReceiver extends BroadcastReceiver {
         	return;
         }
         WifiManager wifi = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
+        if (!wifi.isWifiEnabled()) {
+    		Toast.makeText(context, "Wifi disabled", Toast.LENGTH_LONG).show();
+    		return;
+        }
         List<WifiConfiguration>wifiList = wifi.getConfiguredNetworks();
         WifiConfiguration desireWifiConf = null;
         for (WifiConfiguration wifiConf : wifiList) {
@@ -45,7 +49,7 @@ public class FireReceiver extends BroadcastReceiver {
         }
 		Toast.makeText(context, "Connecting " + desireWifiConf.SSID, Toast.LENGTH_LONG).show();
 
-        context.registerReceiver(new WifiStateReceiver(System.currentTimeMillis(),
+        context.registerReceiver(new ConnectivityReceiver(System.currentTimeMillis(),
 				10*1000,desireWifiConf.networkId,desireWifiConf.SSID),
 				new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
