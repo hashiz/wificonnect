@@ -13,14 +13,11 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
 
 public class FireReceiver extends BroadcastReceiver {
-
-	private static final String TIMEOUT_ACTION = "jp.meridiani.apps.wificonnnect.TIMEOUT";
 
 	private IntentFilter      mFilter;
 	private boolean           mReset;
@@ -28,11 +25,12 @@ public class FireReceiver extends BroadcastReceiver {
 
 	public class StateReceiver extends BroadcastReceiver {
 		public StateReceiver() {
-			Debug.waitForDebugger();
-			Log.d(this.getClass().getName(), "constractor");
+			Log.d(this.getClass().getName(), "StateReceiver");
 		}
-        @Override
+
+		@Override
         public void onReceive(Context context, Intent intent) {
+			Log.d(this.getClass().getName(), "onReceive");
         	String action = intent.getAction();
         	if (WifiManager.NETWORK_STATE_CHANGED_ACTION.equals(action)) {
             	NetworkInfo info = (NetworkInfo)intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
@@ -49,7 +47,9 @@ public class FireReceiver extends BroadcastReceiver {
         	    				wifi.getConnectionInfo().getNetworkId() == mDesireWifiConf.networkId) {
         	    			Toast.makeText(context, "Connected " + mDesireWifiConf.SSID, Toast.LENGTH_LONG).show();
         	    			
-        	    	        context.getApplicationContext().unregisterReceiver(this);
+        	    			Log.d(this.getClass().getName(), "Connected");
+
+        	    			context.getApplicationContext().unregisterReceiver(this);
         	    			cancelTimer(context);
         	    			enableNetworks(context);
         	    		}
@@ -62,33 +62,17 @@ public class FireReceiver extends BroadcastReceiver {
         }
 	}
 
-	public class AlarmReceiver extends BroadcastReceiver {
-		public AlarmReceiver() {
-			Debug.waitForDebugger();
-			Log.d(this.getClass().getName(), "constractor");
-		}
-
-		@Override
-        public void onReceive(Context context, Intent intent) {
-        	String action = intent.getAction();
-        	if (TIMEOUT_ACTION.equals(action)) {
-        		cancelTimer(context);
-        		enableNetworks(context);
-        	}
-        }
-	}
-
 	public FireReceiver() {
-    	Debug.waitForDebugger();
-
+		Log.d(this.getClass().getName(), "FireReceiver");
         mFilter = new IntentFilter();
         mFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
-        mFilter.addAction(TIMEOUT_ACTION);
+        mFilter.addAction(TimeoutReceiver.TIMEOUT_ACTION);
         mReset = false;
     }
 
     @Override
 	public void onReceive(Context context, Intent intent) {
+		Log.d(this.getClass().getName(), "onReceive");
 		if (!com.twofortyfouram.locale.Intent.ACTION_FIRE_SETTING.equals(intent.getAction())) {
         	return;
         }
@@ -145,13 +129,17 @@ public class FireReceiver extends BroadcastReceiver {
     }
 
     private PendingIntent makePendingIntent(Context context) {
+		Log.d(this.getClass().getName(), "makePendingIntent");
 	    Intent i = new Intent();
-	    i.setAction(TIMEOUT_ACTION);
-	    i.setClass(context.getApplicationContext(), AlarmReceiver.class);
+	    i.setAction(TimeoutReceiver.TIMEOUT_ACTION);
+	    i.setClass(context.getApplicationContext(), TimeoutReceiver.class);
+	    i.putExtra(TimeoutReceiver.EXTRA_SSID, mDesireWifiConf.SSID);
+	    i.putExtra(TimeoutReceiver.EXTRA_NETWORKID, mDesireWifiConf.networkId);
 	    return PendingIntent.getBroadcast(context.getApplicationContext(), 0, i, 0);
     }
 
 	private void enableNetworks(Context context) {
+		Log.d(this.getClass().getName(), "enableNetworks");
 		if (mReset) {
 	        WifiManager wifi = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
 	        List<WifiConfiguration> wifiList = wifi.getConfiguredNetworks();
@@ -163,6 +151,7 @@ public class FireReceiver extends BroadcastReceiver {
 	}
 
 	private void cancelTimer(Context context) {
+		Log.d(this.getClass().getName(), "cancelTimer");
 		AlarmManager alarm = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 		alarm.cancel(makePendingIntent(context));
 	}

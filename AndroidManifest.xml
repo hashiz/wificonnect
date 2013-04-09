@@ -41,6 +41,11 @@
                 <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING"/>
             </intent-filter>
         </receiver>
+        <receiver android:name="TimeoutReceiver" android:process=":background" android:exported="false">
+            <intent-filter>
+                <action android:name="jp.meridiani.apps.wificonnect.TIMEOUT_ACTION"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
