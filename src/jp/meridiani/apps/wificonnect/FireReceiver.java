@@ -4,6 +4,7 @@ import java.util.List;
 
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -19,23 +20,31 @@ import android.widget.Toast;
 
 public class FireReceiver extends BroadcastReceiver {
 
-	private static final String ACTION_TIMEOUT = "jp.meridiani.apps.wificonnnect.TIMEOUT";
+	private static final String TIMEOUT_ACTION = "jp.meridiani.apps.wificonnnect.TIMEOUT";
 
-	private BroadcastReceiver mReceiver;
-	private IntentFilter      mFilter;
+	private BroadcastReceiver mStateReceiver;
+	private IntentFilter      mStateFilter;
+	private BroadcastReceiver mAlarmReceiver;
+	private PendingIntent     mAlarmIntent;
 	private boolean           mReset;
 	private WifiConfiguration mDesireWifiConf;
 
     public FireReceiver() {
-    	mReceiver = new BroadcastReceiver() {
+    	mStateReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 onStateChange(context, intent);
             }
         };
-        mFilter = new IntentFilter();
-        mFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
-        mFilter.addAction(ACTION_TIMEOUT);
+        mStateFilter = new IntentFilter();
+        mStateFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+    	mAlarmReceiver = new BroadcastReceiver() {
+    		@Override
+    		public void onReceive(Context context, Intent intent) {
+                onTimeOut(context);
+    		}
+    	};
+    	mAlarmIntent = null;
         mReset = false;
     }
 
@@ -87,40 +96,37 @@ public class FireReceiver extends BroadcastReceiver {
         mReset = true;
 
 		// register
-		context.getApplicationContext().registerReceiver(mReceiver,mFilter);
+		context.getApplicationContext().registerReceiver(mStateReceiver,mStateFilter);
 
         wifi.reconnect();
 
         // timer start
         AlarmManager alarm = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        
-        alarm.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, 15 * 1000, operation)
+        Intent i = new Intent();
+        i.setAction(TIMEOUT_ACTION);
+        i.setClass(context.getApplicationContext(), mAlarmReceiver.getClass());
+        mAlarmIntent = PendingIntent.getBroadcast(context.getApplicationContext(), 0, i, 0);
+        alarm.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, 15000, mAlarmIntent);
     }
 
 	private void onStateChange(Context context, Intent intent) {
     	NetworkInfo info = (NetworkInfo)intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
     	if (info == null) {
-    		Log.e("onStateChange", WifiManager.EXTRA_NETWORK_INFO);
     		return;
     	}
-
-        WifiManager wifi = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
 
         switch (info.getState()) {
     	case CONNECTED:
 	    	{
+	            WifiManager wifi = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
+
 	    		if (info.getType() == ConnectivityManager.TYPE_WIFI &&
 	    				wifi.getConnectionInfo().getNetworkId() == mDesireWifiConf.networkId) {
 	    			Toast.makeText(context, "Connected " + mDesireWifiConf.SSID, Toast.LENGTH_LONG).show();
-		        	// re-enable all networks
-		    		if (mReset) {
-			            List<WifiConfiguration> wifiList = wifi.getConfiguredNetworks();
-			            for (WifiConfiguration wifiConf : wifiList) {
-			           		wifi.enableNetwork(wifiConf.networkId, false);
-			            }
-			            mReset = false;
-		    		}
-		            context.getApplicationContext().unregisterReceiver(this);
+	    			
+	    	        context.getApplicationContext().unregisterReceiver(mStateReceiver);
+	    			cancelTimer(context);
+	    			enableNetworks(context);
 	    		}
 	    	}
 	    	break;
@@ -128,4 +134,26 @@ public class FireReceiver extends BroadcastReceiver {
 			break;
     	}
     }
+
+	private void onTimeOut(Context context) {
+        context.getApplicationContext().unregisterReceiver(mStateReceiver);
+		cancelTimer(context);
+		enableNetworks(context);
+	}
+
+	private void enableNetworks(Context context) {
+		if (mReset) {
+	        WifiManager wifi = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
+	        List<WifiConfiguration> wifiList = wifi.getConfiguredNetworks();
+	        for (WifiConfiguration wifiConf : wifiList) {
+	       		wifi.enableNetwork(wifiConf.networkId, false);
+	        }
+	        mReset = false;
+		}
+	}
+
+	private void cancelTimer(Context context) {
+		AlarmManager alarm = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+		alarm.cancel(mAlarmIntent);
+	}
 }
