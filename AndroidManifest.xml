@@ -17,7 +17,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" android:debuggable="true">
         <activity
-            android:name="jp.meridiani.apps.wificonnect.MainScreenActivity"
+            android:name=".activity.MainScreenActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
             android:theme="@style/FullscreenTheme" >
@@ -28,20 +28,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="jp.meridiani.apps.wificonnect.EditActivity"
+            android:name=".activity.EditActivity"
             android:label="@string/title_activity_edit" >
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING"/>
             </intent-filter>
         </activity>
-        <receiver android:name="jp.meridiani.apps.wificonnect.FireReceiver"
+        <receiver android:name=".receiver.FireReceiver"
             android:exported="true"
             android:process=":background">
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING"/>
             </intent-filter>
         </receiver>
-        <receiver android:name="TimeoutReceiver" android:process=":background" android:exported="false">
+        <receiver android:name=".receiver.TimeoutReceiver" android:process=":background" android:exported="false">
             <intent-filter>
                 <action android:name="jp.meridiani.apps.wificonnect.TIMEOUT_ACTION"/>
             </intent-filter>

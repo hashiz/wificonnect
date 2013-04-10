@@ -1,6 +1,8 @@
-package jp.meridiani.apps.wificonnect;
+package jp.meridiani.apps.wificonnect.receiver;
 
 import java.util.List;
+
+import jp.meridiani.apps.wificonnect.Constants;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -66,7 +68,7 @@ public class FireReceiver extends BroadcastReceiver {
 		Log.d(this.getClass().getName(), "FireReceiver");
         mFilter = new IntentFilter();
         mFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
-        mFilter.addAction(TimeoutReceiver.TIMEOUT_ACTION);
+        mFilter.addAction(Constants.TIMEOUT_ACTION);
         mReset = false;
     }
 
@@ -131,10 +133,10 @@ public class FireReceiver extends BroadcastReceiver {
     private PendingIntent makePendingIntent(Context context) {
 		Log.d(this.getClass().getName(), "makePendingIntent");
 	    Intent i = new Intent();
-	    i.setAction(TimeoutReceiver.TIMEOUT_ACTION);
+	    i.setAction(Constants.TIMEOUT_ACTION);
 	    i.setClass(context.getApplicationContext(), TimeoutReceiver.class);
-	    i.putExtra(TimeoutReceiver.EXTRA_SSID, mDesireWifiConf.SSID);
-	    i.putExtra(TimeoutReceiver.EXTRA_NETWORKID, mDesireWifiConf.networkId);
+	    i.putExtra(Constants.BUNDLE_SSID, mDesireWifiConf.SSID);
+	    i.putExtra(Constants.BUNDLE_NETWORKID, mDesireWifiConf.networkId);
 	    return PendingIntent.getBroadcast(context.getApplicationContext(), 0, i, 0);
     }
 

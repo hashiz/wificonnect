@@ -1,6 +1,8 @@
-package jp.meridiani.apps.wificonnect;
+package jp.meridiani.apps.wificonnect.receiver;
 
 import java.util.List;
+
+import jp.meridiani.apps.wificonnect.Constants;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,20 +14,17 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class TimeoutReceiver extends BroadcastReceiver {
-	public static final String TIMEOUT_ACTION  = "jp.meridiani.apps.wificonnnect.TIMEOUT_ACTION";
-	public static final String EXTRA_SSID      = "jp.meridiani.apps.wificonnnect.EXTRA_SSID";
-	public static final String EXTRA_NETWORKID = "jp.meridiani.apps.wificonnnect.EXTRA_NETWORKID";
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		Log.d(this.getClass().getName(), "onReceive");
     	String action = intent.getAction();
-    	if (!TIMEOUT_ACTION.equals(action)) {
+    	if (!Constants.TIMEOUT_ACTION.equals(action)) {
     		return;
     	}
-    	String desireSSID = intent.getStringExtra(EXTRA_SSID);
+    	String desireSSID = intent.getStringExtra(Constants.BUNDLE_SSID);
     	if (desireSSID == null) return;
-    	int desireNetworkId = intent.getIntExtra(EXTRA_NETWORKID, -1);
+    	int desireNetworkId = intent.getIntExtra(Constants.BUNDLE_NETWORKID, -1);
     	if (desireNetworkId < 0) return;
 
     	WifiManager wifi = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);

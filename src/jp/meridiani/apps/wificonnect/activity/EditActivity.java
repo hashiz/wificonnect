@@ -1,21 +1,21 @@
-package jp.meridiani.apps.wificonnect;
+package jp.meridiani.apps.wificonnect.activity;
 
 import java.util.List;
 
-import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiManager;
-import android.os.Bundle;
+import jp.meridiani.apps.wificonnect.Constants;
+import jp.meridiani.apps.wificonnect.R;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ListView;
-import jp.meridiani.apps.wificonnect.Constants;
 
 public class EditActivity extends Activity implements OnItemSelectedListener, OnItemClickListener {
 
