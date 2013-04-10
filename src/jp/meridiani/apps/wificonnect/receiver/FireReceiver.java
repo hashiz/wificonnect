@@ -68,7 +68,7 @@ public class FireReceiver extends BroadcastReceiver {
 		Log.d(this.getClass().getName(), "FireReceiver");
         mFilter = new IntentFilter();
         mFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
-        mFilter.addAction(Constants.TIMEOUT_ACTION);
+        mFilter.addAction(Constants.ACTION_TIMEOUT);
         mReset = false;
     }
 
@@ -133,7 +133,7 @@ public class FireReceiver extends BroadcastReceiver {
     private PendingIntent makePendingIntent(Context context) {
 		Log.d(this.getClass().getName(), "makePendingIntent");
 	    Intent i = new Intent();
-	    i.setAction(Constants.TIMEOUT_ACTION);
+	    i.setAction(Constants.ACTION_TIMEOUT);
 	    i.setClass(context.getApplicationContext(), TimeoutReceiver.class);
 	    i.putExtra(Constants.BUNDLE_SSID, mDesireWifiConf.SSID);
 	    i.putExtra(Constants.BUNDLE_NETWORKID, mDesireWifiConf.networkId);

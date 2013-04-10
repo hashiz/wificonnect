@@ -19,7 +19,7 @@ public class TimeoutReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		Log.d(this.getClass().getName(), "onReceive");
     	String action = intent.getAction();
-    	if (!Constants.TIMEOUT_ACTION.equals(action)) {
+    	if (!Constants.ACTION_TIMEOUT.equals(action)) {
     		return;
     	}
     	String desireSSID = intent.getStringExtra(Constants.BUNDLE_SSID);
