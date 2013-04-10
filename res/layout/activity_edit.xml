@@ -12,6 +12,6 @@
         android:id="@+id/SSIDList"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+        android:text="@string/ap_name" />
 
 </RelativeLayout>

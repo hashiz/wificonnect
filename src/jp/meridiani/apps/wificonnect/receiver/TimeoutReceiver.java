@@ -3,6 +3,7 @@ package jp.meridiani.apps.wificonnect.receiver;
 import java.util.List;
 
 import jp.meridiani.apps.wificonnect.Constants;
+import jp.meridiani.apps.wificonnect.R;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -31,7 +32,7 @@ public class TimeoutReceiver extends BroadcastReceiver {
     	WifiInfo info = wifi.getConnectionInfo();
     	if (info == null || info.getNetworkId() != desireNetworkId) {
 			Log.d(this.getClass().getName(), "Failed connect");
-    		Toast.makeText(context, "Failed connect to " + desireSSID, Toast.LENGTH_LONG).show();
+    		Toast.makeText(context, context.getString(R.string.msg_failed_to_connect, desireSSID), Toast.LENGTH_LONG).show();
     	}
     	enableNetworks(context);
 	}

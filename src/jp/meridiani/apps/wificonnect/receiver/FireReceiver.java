@@ -3,6 +3,7 @@ package jp.meridiani.apps.wificonnect.receiver;
 import java.util.List;
 
 import jp.meridiani.apps.wificonnect.Constants;
+import jp.meridiani.apps.wificonnect.R;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -47,7 +48,7 @@ public class FireReceiver extends BroadcastReceiver {
 
         	    		if (info.getType() == ConnectivityManager.TYPE_WIFI &&
         	    				wifi.getConnectionInfo().getNetworkId() == mDesireWifiConf.networkId) {
-        	    			Toast.makeText(context, "Connected " + mDesireWifiConf.SSID, Toast.LENGTH_LONG).show();
+        	    			Toast.makeText(context, context.getString(R.string.msg_connected, mDesireWifiConf.SSID), Toast.LENGTH_LONG).show();
         	    			
         	    			Log.d(this.getClass().getName(), "Connected");
 
@@ -88,7 +89,7 @@ public class FireReceiver extends BroadcastReceiver {
         }
         WifiManager wifi = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
         if (!wifi.isWifiEnabled()) {
-    		Toast.makeText(context, "Wifi disabled", Toast.LENGTH_LONG).show();
+    		Toast.makeText(context, context.getString(R.string.msg_wifi_disable), Toast.LENGTH_LONG).show();
     		return;
         }
         List<WifiConfiguration>wifiList = wifi.getConfiguredNetworks();
@@ -97,7 +98,7 @@ public class FireReceiver extends BroadcastReceiver {
         for (WifiConfiguration wifiConf : wifiList) {
         	if (ssid.equals(wifiConf.SSID)) {
         		if (wifiConf.status == WifiConfiguration.Status.CURRENT) {
-            		Toast.makeText(context, "Already connect " + ssid, Toast.LENGTH_LONG).show();
+            		Toast.makeText(context, context.getString(R.string.msg_already_connect, ssid), Toast.LENGTH_LONG).show();
             		return;
         		}
         		mDesireWifiConf = wifiConf;
@@ -109,7 +110,7 @@ public class FireReceiver extends BroadcastReceiver {
         if (mDesireWifiConf == null) {
         	return;
         }
-		Toast.makeText(context, "Connecting " + mDesireWifiConf.SSID, Toast.LENGTH_LONG).show();
+		Toast.makeText(context, context.getString(R.string.msg_connecting, mDesireWifiConf.SSID), Toast.LENGTH_LONG).show();
 
 		// set priority to top
 		mDesireWifiConf.priority = lastPriority + 1;
