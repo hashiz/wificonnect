@@ -5,11 +5,14 @@ import java.util.List;
 import jp.meridiani.apps.wificonnect.Constants;
 import jp.meridiani.apps.wificonnect.R;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Debug;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -31,14 +34,17 @@ public class EditActivity extends Activity implements OnItemSelectedListener, On
 	private Button mCancelButton;
 	private boolean mCanceled;
 	private boolean mWifiEnabledFirst;
+	private static final IntentFilter WIFI_STATE_CHANGED = new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION);
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		Debug.waitForDebugger();
+
 		super.onCreate(savedInstanceState);
 
 		// receive intent and extra data
 		Intent intent = getIntent();
-		if (com.twofortyfouram.locale.Intent.ACTION_EDIT_SETTING.equals(intent.getAction())) {
+		if (!com.twofortyfouram.locale.Intent.ACTION_EDIT_SETTING.equals(intent.getAction())) {
 			super.finish();
 			return;
 		}
@@ -87,12 +93,28 @@ public class EditActivity extends Activity implements OnItemSelectedListener, On
 				onCancelClick((Button)v);
 			}
 		});
+
+		updateWifiList();
+
+		getApplicationContext().registerReceiver(new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				if (!WifiManager.WIFI_STATE_CHANGED_ACTION.equals(intent.getAction())) {
+					return;
+				}
+				onWifiStateChanged(intent);
+			}
+
+		}, WIFI_STATE_CHANGED);
 	}
 
 	@Override
     public void finish()
     {
-		int selPos = mWifiListView.getCheckedItemPosition();
+		int selPos = -1;
+		if (mWifiListView.getCount() > 0) {
+			selPos = mWifiListView.getCheckedItemPosition();
+		}
 		String ssid = null;
 		if (selPos >= 0) {
 			ssid = (String)mWifiListView.getAdapter().getItem(selPos);
@@ -132,9 +154,6 @@ public class EditActivity extends Activity implements OnItemSelectedListener, On
 
 	private void setWifiEnable(boolean enabled) {
 		getWifiManager().setWifiEnabled(enabled);
-		if (enabled) {
-			updateWifiList();
-		}
 	}
 
 	private WifiManager getWifiManager() {
@@ -172,5 +191,13 @@ public class EditActivity extends Activity implements OnItemSelectedListener, On
 	private void onCancelClick(Button b) {
 		mCanceled = true;
 		finish();
+	}
+
+	private void onWifiStateChanged(Intent intent) {
+		int state = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN);
+		switch (state) {
+		case WifiManager.WIFI_STATE_ENABLED:
+			updateWifiList();
+		}
 	}
 }
