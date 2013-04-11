@@ -38,8 +38,6 @@ public class EditActivity extends Activity implements OnItemSelectedListener, On
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		Debug.waitForDebugger();
-
 		super.onCreate(savedInstanceState);
 
 		// receive intent and extra data
