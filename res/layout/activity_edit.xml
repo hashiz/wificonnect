@@ -8,10 +8,37 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".EditActivity" >
 
+	<ToggleButton
+	    android:id="@+id/wifi_button"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentTop="true"
+	    android:layout_alignParentLeft="true"
+	    android:text="@string/button_wifi" />
+
+	<Button
+	    android:id="@+id/select_button"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/cancel_button"
+	    android:text="@string/button_select" />
+    
+	<Button
+	    android:id="@+id/cancel_button"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+	    android:text="@string/button_cancel" />
+	
     <ListView
         android:id="@+id/SSIDList"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/ap_name" />
+        android:layout_below="@+id/wifi_button"
+        android:text="@string/ap_name" >
+
+    </ListView>
 
 </RelativeLayout>
