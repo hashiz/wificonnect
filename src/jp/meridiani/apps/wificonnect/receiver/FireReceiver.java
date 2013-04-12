@@ -70,7 +70,6 @@ public class FireReceiver extends BroadcastReceiver {
         mFilter = new IntentFilter();
         mFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         mFilter.addAction(Constants.ACTION_TIMEOUT);
-        mReset = false;
     }
 
     @Override
@@ -87,6 +86,9 @@ public class FireReceiver extends BroadcastReceiver {
         if (ssid == null || ssid.length() < 1) {
         	return;
         }
+
+        mReset = false;
+
         WifiManager wifi = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
         if (!wifi.isWifiEnabled()) {
     		Toast.makeText(context, context.getString(R.string.msg_wifi_disable), Toast.LENGTH_LONG).show();
@@ -108,6 +110,7 @@ public class FireReceiver extends BroadcastReceiver {
         	}
         }
         if (mDesireWifiConf == null) {
+    		Toast.makeText(context, context.getString(R.string.msg_not_configured, ssid), Toast.LENGTH_LONG).show();
         	return;
         }
 		Toast.makeText(context, context.getString(R.string.msg_connecting, mDesireWifiConf.SSID), Toast.LENGTH_LONG).show();

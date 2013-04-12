@@ -15,4 +15,5 @@
     <string name="msg_connected">Connected %1$s</string>
     <string name="msg_already_connect">Already connect %1$s</string> 
     <string name="msg_failed_to_connect">Failed to connect %1$s</string>
+    <string name="msg_not_configured">Not configured %1$s</string>
 </resources>
