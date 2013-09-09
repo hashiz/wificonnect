@@ -32,7 +32,6 @@ public class EditActivity extends Activity implements OnItemSelectedListener, On
 	private Button mSelectButton;
 	private Button mCancelButton;
 	private boolean mCanceled;
-	private boolean mWifiEnabledFirst;
 	private static final IntentFilter WIFI_STATE_CHANGED = new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION);
 	private BroadcastReceiver mBroadcastReceiver;
 
@@ -67,7 +66,6 @@ public class EditActivity extends Activity implements OnItemSelectedListener, On
 		mCancelButton = (Button)findViewById(R.id.cancel_button);
 
 		WifiManager wifi = getWifiManager();
-		mWifiEnabledFirst = wifi.isWifiEnabled();
 
 		mWifiButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			@Override
@@ -146,10 +144,6 @@ public class EditActivity extends Activity implements OnItemSelectedListener, On
         }
         else {
             setResult(RESULT_CANCELED, resultIntent);
-        }
-        WifiManager wifi = getWifiManager();
-        if (!mWifiEnabledFirst && wifi.isWifiEnabled()) {
-        	wifi.setWifiEnabled(false);
         }
     	super.finish();
     }
