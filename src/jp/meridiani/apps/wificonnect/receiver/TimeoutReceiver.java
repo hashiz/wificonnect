@@ -40,11 +40,13 @@ public class TimeoutReceiver extends BroadcastReceiver {
 	private void enableNetworks(Context context) {
 		Log.d(this.getClass().getName(), "enableNetworks");
         WifiManager wifi = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
-        List<WifiConfiguration> wifiList = wifi.getConfiguredNetworks();
-        for (WifiConfiguration wifiConf : wifiList) {
-       		wifi.enableNetwork(wifiConf.networkId, false);
+        if (wifi.isWifiEnabled()) {
+	        List<WifiConfiguration> wifiList = wifi.getConfiguredNetworks();
+	        if (wifiList != null) {
+		        for (WifiConfiguration wifiConf : wifiList) {
+		       		wifi.enableNetwork(wifiConf.networkId, false);
+		        }
+	        }
         }
 	}
-
-
 }

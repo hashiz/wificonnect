@@ -177,10 +177,12 @@ public class EditActivity extends Activity implements OnItemSelectedListener, On
 		int selPos = 0;
 		if (wifi.isWifiEnabled()) {
 			List<WifiConfiguration>wifiConfList = wifi.getConfiguredNetworks();
-			for ( WifiConfiguration wifiConf : wifiConfList) {
-				adapter.add(wifiConf.SSID);
-				if (mSelectedSSID.equals(wifiConf.SSID)) {
-					selPos = adapter.getCount() - 1;
+			if (wifiConfList != null) {
+				for ( WifiConfiguration wifiConf : wifiConfList) {
+					adapter.add(wifiConf.SSID);
+					if (mSelectedSSID.equals(wifiConf.SSID)) {
+						selPos = adapter.getCount() - 1;
+					}
 				}
 			}
 		}

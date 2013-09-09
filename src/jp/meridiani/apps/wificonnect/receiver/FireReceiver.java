@@ -95,6 +95,10 @@ public class FireReceiver extends BroadcastReceiver {
     		return;
         }
         List<WifiConfiguration>wifiList = wifi.getConfiguredNetworks();
+        if (wifiList == null) {
+    		Toast.makeText(context, context.getString(R.string.msg_wifi_disable), Toast.LENGTH_LONG).show();
+    		return;
+        }
         mDesireWifiConf = null;
         int lastPriority = 0;
         for (WifiConfiguration wifiConf : wifiList) {
@@ -148,9 +152,13 @@ public class FireReceiver extends BroadcastReceiver {
 		Log.d(this.getClass().getName(), "enableNetworks");
 		if (mReset) {
 	        WifiManager wifi = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
-	        List<WifiConfiguration> wifiList = wifi.getConfiguredNetworks();
-	        for (WifiConfiguration wifiConf : wifiList) {
-	       		wifi.enableNetwork(wifiConf.networkId, false);
+	        if (wifi.isWifiEnabled()) {
+		        List<WifiConfiguration> wifiList = wifi.getConfiguredNetworks();
+		        if (wifiList != null) {
+			        for (WifiConfiguration wifiConf : wifiList) {
+			       		wifi.enableNetwork(wifiConf.networkId, false);
+			        }
+		        }
 	        }
 	        mReset = false;
 		}
