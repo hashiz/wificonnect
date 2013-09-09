@@ -34,6 +34,7 @@ public class EditActivity extends Activity implements OnItemSelectedListener, On
 	private boolean mCanceled;
 	private boolean mWifiEnabledFirst;
 	private static final IntentFilter WIFI_STATE_CHANGED = new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION);
+	private BroadcastReceiver mBroadcastReceiver;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -91,9 +92,13 @@ public class EditActivity extends Activity implements OnItemSelectedListener, On
 			}
 		});
 
-		updateWifiList();
+	}
 
-		getApplicationContext().registerReceiver(new BroadcastReceiver() {
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		mBroadcastReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				if (!WifiManager.WIFI_STATE_CHANGED_ACTION.equals(intent.getAction())) {
@@ -102,8 +107,20 @@ public class EditActivity extends Activity implements OnItemSelectedListener, On
 				onWifiStateChanged(intent);
 			}
 
-		}, WIFI_STATE_CHANGED);
-	}
+		};
+
+		getApplicationContext().registerReceiver(mBroadcastReceiver,WIFI_STATE_CHANGED);
+
+		updateWifiList();
+
+	};
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		
+		getApplicationContext().unregisterReceiver(mBroadcastReceiver);
+	};
 
 	@Override
     public void finish()
@@ -160,19 +177,25 @@ public class EditActivity extends Activity implements OnItemSelectedListener, On
 	private void updateWifiList() {
 		WifiManager wifi = getWifiManager();
 
-		List<WifiConfiguration>wifiConfList = wifi.getConfiguredNetworks();
-
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-							android.R.layout.simple_list_item_single_choice);
+				android.R.layout.simple_list_item_single_choice);
+
 		int selPos = 0;
-		for ( WifiConfiguration wifiConf : wifiConfList) {
-			adapter.add(wifiConf.SSID);
-			if (mSelectedSSID.equals(wifiConf.SSID)) {
-				selPos = adapter.getCount() - 1;
+		if (wifi.isWifiEnabled()) {
+			List<WifiConfiguration>wifiConfList = wifi.getConfiguredNetworks();
+			for ( WifiConfiguration wifiConf : wifiConfList) {
+				adapter.add(wifiConf.SSID);
+				if (mSelectedSSID.equals(wifiConf.SSID)) {
+					selPos = adapter.getCount() - 1;
+				}
 			}
 		}
 
+
 		ListView wifiListView = (ListView)findViewById(R.id.SSIDList);
+		if (wifiListView == null) {
+			return;
+		}
 		wifiListView.setAdapter(adapter);
 		wifiListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		wifiListView.setItemChecked(selPos, true);
@@ -194,6 +217,7 @@ public class EditActivity extends Activity implements OnItemSelectedListener, On
 		int state = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN);
 		switch (state) {
 		case WifiManager.WIFI_STATE_ENABLED:
+		case WifiManager.WIFI_STATE_DISABLED:
 			updateWifiList();
 		}
 	}
