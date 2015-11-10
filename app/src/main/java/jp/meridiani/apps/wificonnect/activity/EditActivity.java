@@ -41,12 +41,12 @@ public class EditActivity extends Activity implements OnItemSelectedListener, On
 
 		// receive intent and extra data
 		Intent intent = getIntent();
-		if (!com.twofortyfouram.locale.Intent.ACTION_EDIT_SETTING.equals(intent.getAction())) {
+		if (!com.twofortyfouram.locale.api.Intent.ACTION_EDIT_SETTING.equals(intent.getAction())) {
 			super.finish();
 			return;
 		}
 
-		Bundle bundle = getIntent().getBundleExtra(com.twofortyfouram.locale.Intent.EXTRA_BUNDLE);
+		Bundle bundle = getIntent().getBundleExtra(com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE);
 
 		mSelectedSSID = null;
 		if (bundle != null) {
@@ -137,8 +137,8 @@ public class EditActivity extends Activity implements OnItemSelectedListener, On
             Bundle resultBundle = new Bundle();
             resultBundle.putString(Constants.BUNDLE_AP_SSID, ssid);
 
-            resultIntent.putExtra(com.twofortyfouram.locale.Intent.EXTRA_STRING_BLURB, ssid);
-            resultIntent.putExtra(com.twofortyfouram.locale.Intent.EXTRA_BUNDLE, resultBundle);
+            resultIntent.putExtra(com.twofortyfouram.locale.api.Intent.EXTRA_STRING_BLURB, ssid);
+            resultIntent.putExtra(com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE, resultBundle);
 
             setResult(RESULT_OK, resultIntent);
         }
