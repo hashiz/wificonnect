@@ -75,10 +75,10 @@ public class FireReceiver extends BroadcastReceiver {
     @Override
 	public void onReceive(Context context, Intent intent) {
 		Log.d(this.getClass().getName(), "onReceive");
-		if (!com.twofortyfouram.locale.Intent.ACTION_FIRE_SETTING.equals(intent.getAction())) {
+		if (!com.twofortyfouram.locale.api.Intent.ACTION_FIRE_SETTING.equals(intent.getAction())) {
         	return;
         }
-        Bundle bundle = intent.getBundleExtra(com.twofortyfouram.locale.Intent.EXTRA_BUNDLE);
+        Bundle bundle = intent.getBundleExtra(com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE);
         if (bundle == null) {
         	return;
         }
