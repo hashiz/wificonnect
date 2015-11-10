@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">WiFi Connect</string>
+    <string name="app_title">WiFi Connect for Tasker</string>
     <string name="ap_name">Access Point Name</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">WiFi\nConnect</string>
