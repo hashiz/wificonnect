@@ -18,7 +18,14 @@ android {
     }
 }
 
+repositories {
+    maven {
+        url "http://dl.bintray.com/twofortyfouram/maven"
+    }
+}
+
 dependencies {
     compile 'com.android.support:support-v4:18.0.0'
-    compile files('libs/locale-api.jar')
+    compile 'com.twofortyfouram:android-plugin-api-for-locale:[1.0.2,2.0]'
+    compile 'com.android.support:support-annotations:23.1.0'
 }
