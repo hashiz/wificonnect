@@ -16,6 +16,15 @@
 	    android:layout_alignParentLeft="true"
 	    android:text="@string/button_wifi" />
 
+	<CheckBox
+        android:id="@+id/showtoast"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+        android:text="@string/show_toast"
+        android:layout_alignParentLeft="false"
+        android:layout_toLeftOf="@+id/select_button"
+        />
+
 	<Button
 	    android:id="@+id/select_button"
 	    android:layout_width="wrap_content"

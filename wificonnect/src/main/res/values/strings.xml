@@ -10,6 +10,7 @@
     <string name="button_select">Select</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_close">Close</string>
+    <string name="show_toast">Toast</string>
     <string name="title_activity_edit">WiFi Connect</string>
     <string name="msg_wifi_disable">Wifi disable</string>
     <string name="msg_connecting">Connecting %1$s</string>

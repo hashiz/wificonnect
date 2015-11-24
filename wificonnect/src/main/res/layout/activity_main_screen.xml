@@ -10,35 +10,44 @@
         android:orientation="vertical"
         >
 
-        <TextView
-            android:layout_marginTop="@dimen/activity_vertical_margin"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/app_title"
-            android:textSize="25sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            />
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:gravity="center_vertical">
 
-        <TextView
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="?android:attr/versionName"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/app_title"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_gravity="center_vertical"/>
+
+            <TextView
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="versionName"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_gravity="center_vertical"
+                android:id="@+id/versionName"/>
+
+        </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:gravity="center"
             android:text="This application does not have own UI.\nUI are found in Taker - Action - Plugins."
             android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:gravity="top|center"/>
 
         <Button
             android:id="@+id/close_button"
