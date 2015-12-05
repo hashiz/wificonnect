@@ -63,7 +63,7 @@ public class EditActivity extends Activity {
 		}
 		else {
 			mSelectedSSID = savedInstanceState.getString(SAVE_SELECTED_SSID);
-			showToast = savedInstanceState.getBoolean(SAVE_SHOW_TOAST,true);
+			showToast = savedInstanceState.getBoolean(SAVE_SHOW_TOAST, true);
 		}
 		if (mSelectedSSID == null)
 			mSelectedSSID = "";
@@ -203,15 +203,10 @@ public class EditActivity extends Activity {
 		wifiListView.setAdapter(adapter);
 		wifiListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		wifiListView.setItemChecked(selPos, true);
-		wifiListView.setOnItemSelectedListener(new OnItemSelectedListener() {
+		wifiListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
-			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				mSelectedSSID = ((WifiConfiguration)parent.getAdapter().getItem(position)).SSID;
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
-				mSelectedSSID = "";
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				mSelectedSSID = (String)parent.getAdapter().getItem(position);
 			}
 		});
 	}
