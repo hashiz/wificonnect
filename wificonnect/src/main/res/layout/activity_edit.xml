@@ -8,44 +8,53 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".EditActivity" >
 
-	<ToggleButton
-	    android:id="@+id/wifi_button"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:layout_alignParentTop="true"
-	    android:layout_alignParentLeft="true"
-	    android:text="@string/button_wifi" />
+    <LinearLayout
+        android:id="@+id/button_field"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
 
-	<CheckBox
-        android:id="@+id/showtoast"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-        android:text="@string/show_toast"
-        android:layout_alignParentLeft="false"
-        android:layout_toLeftOf="@+id/select_button"
-        />
+        <ToggleButton
+            android:id="@+id/wifi_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/button_wifi"
+            android:layout_weight="0"
+            android:layout_gravity="right" />
 
-	<Button
-	    android:id="@+id/select_button"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/cancel_button"
-	    android:text="@string/button_select" />
-    
-	<Button
-	    android:id="@+id/cancel_button"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-	    android:text="@string/button_cancel" />
-	
+        <LinearLayout
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <CheckBox
+            android:id="@+id/showtoast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="@string/show_toast" />
+
+        <Button
+            android:id="@+id/select_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="@string/button_select"/>
+
+        <Button
+            android:id="@+id/cancel_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="@string/button_cancel"/>
+    </LinearLayout>
+
     <ListView
         android:id="@+id/SSIDList"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/wifi_button"
+        android:layout_below="@+id/button_field"
         android:text="@string/ap_name" >
 
     </ListView>

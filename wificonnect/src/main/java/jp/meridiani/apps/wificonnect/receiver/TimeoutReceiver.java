@@ -24,6 +24,7 @@ public class TimeoutReceiver extends BroadcastReceiver {
     		return;
     	}
     	String desireSSID = intent.getStringExtra(Constants.BUNDLE_SSID);
+		boolean showToast = intent.getBooleanExtra(Constants.BUNDLE_SHOWTOAST, true);
     	if (desireSSID == null) return;
     	int desireNetworkId = intent.getIntExtra(Constants.BUNDLE_NETWORKID, -1);
     	if (desireNetworkId < 0) return;
@@ -32,7 +33,8 @@ public class TimeoutReceiver extends BroadcastReceiver {
     	WifiInfo info = wifi.getConnectionInfo();
     	if (info == null || info.getNetworkId() != desireNetworkId) {
 			Log.d(this.getClass().getName(), "Failed connect");
-    		Toast.makeText(context, context.getString(R.string.msg_failed_to_connect, desireSSID), Toast.LENGTH_LONG).show();
+    		if (showToast)
+				Toast.makeText(context, context.getString(R.string.msg_failed_to_connect, desireSSID), Toast.LENGTH_LONG).show();
     	}
     	enableNetworks(context);
 	}

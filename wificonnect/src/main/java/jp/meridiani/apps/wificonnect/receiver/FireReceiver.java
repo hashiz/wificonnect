@@ -25,6 +25,7 @@ public class FireReceiver extends BroadcastReceiver {
 	private IntentFilter      mFilter;
 	private boolean           mReset;
 	private WifiConfiguration mDesireWifiConf;
+	private boolean           mShowToast;
 
 	public class StateReceiver extends BroadcastReceiver {
 		public StateReceiver() {
@@ -36,7 +37,7 @@ public class FireReceiver extends BroadcastReceiver {
 			Log.d(this.getClass().getName(), "onReceive");
         	String action = intent.getAction();
         	if (WifiManager.NETWORK_STATE_CHANGED_ACTION.equals(action)) {
-            	NetworkInfo info = (NetworkInfo)intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+            	NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
             	if (info == null) {
             		return;
             	}
@@ -48,7 +49,7 @@ public class FireReceiver extends BroadcastReceiver {
 
         	    		if (info.getType() == ConnectivityManager.TYPE_WIFI &&
         	    				wifi.getConnectionInfo().getNetworkId() == mDesireWifiConf.networkId) {
-        	    			Toast.makeText(context, context.getString(R.string.msg_connected, mDesireWifiConf.SSID), Toast.LENGTH_LONG).show();
+        	    			showToast(context, context.getString(R.string.msg_connected, mDesireWifiConf.SSID), mShowToast);
         	    			
         	    			Log.d(this.getClass().getName(), "Connected");
 
@@ -72,6 +73,12 @@ public class FireReceiver extends BroadcastReceiver {
         mFilter.addAction(Constants.ACTION_TIMEOUT);
     }
 
+	private void showToast(Context context, String text, boolean flag) {
+		if (flag) {
+			Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+		}
+	}
+
     @Override
 	public void onReceive(Context context, Intent intent) {
 		Log.d(this.getClass().getName(), "onReceive");
@@ -86,17 +93,18 @@ public class FireReceiver extends BroadcastReceiver {
         if (ssid == null || ssid.length() < 1) {
         	return;
         }
+		mShowToast = bundle.getBoolean(Constants.BUNDLE_SHOWTOAST, true);
 
         mReset = false;
 
         WifiManager wifi = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
         if (!wifi.isWifiEnabled()) {
-    		Toast.makeText(context, context.getString(R.string.msg_wifi_disable), Toast.LENGTH_LONG).show();
+    		showToast(context, context.getString(R.string.msg_wifi_disable), mShowToast);
     		return;
         }
         List<WifiConfiguration>wifiList = wifi.getConfiguredNetworks();
         if (wifiList == null) {
-    		Toast.makeText(context, context.getString(R.string.msg_wifi_disable), Toast.LENGTH_LONG).show();
+    		showToast(context, context.getString(R.string.msg_wifi_disable), mShowToast);
     		return;
         }
         mDesireWifiConf = null;
@@ -104,7 +112,7 @@ public class FireReceiver extends BroadcastReceiver {
         for (WifiConfiguration wifiConf : wifiList) {
         	if (ssid.equals(wifiConf.SSID)) {
         		if (wifiConf.status == WifiConfiguration.Status.CURRENT) {
-            		Toast.makeText(context, context.getString(R.string.msg_already_connect, ssid), Toast.LENGTH_LONG).show();
+            		showToast(context, context.getString(R.string.msg_already_connect, ssid), mShowToast);
             		return;
         		}
         		mDesireWifiConf = wifiConf;
@@ -114,10 +122,10 @@ public class FireReceiver extends BroadcastReceiver {
         	}
         }
         if (mDesireWifiConf == null) {
-    		Toast.makeText(context, context.getString(R.string.msg_not_configured, ssid), Toast.LENGTH_LONG).show();
+    		showToast(context, context.getString(R.string.msg_not_configured, ssid), mShowToast);
         	return;
         }
-		Toast.makeText(context, context.getString(R.string.msg_connecting, mDesireWifiConf.SSID), Toast.LENGTH_LONG).show();
+		showToast(context, context.getString(R.string.msg_connecting, mDesireWifiConf.SSID), mShowToast);
 
 		// set priority to top
 		mDesireWifiConf.priority = lastPriority + 1;
@@ -145,6 +153,7 @@ public class FireReceiver extends BroadcastReceiver {
 	    i.setClass(context.getApplicationContext(), TimeoutReceiver.class);
 	    i.putExtra(Constants.BUNDLE_SSID, mDesireWifiConf.SSID);
 	    i.putExtra(Constants.BUNDLE_NETWORKID, mDesireWifiConf.networkId);
+		i.putExtra(Constants.BUNDLE_SHOWTOAST, mShowToast);
 	    return PendingIntent.getBroadcast(context.getApplicationContext(), 0, i, 0);
     }
 

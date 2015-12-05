@@ -19,16 +19,20 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ListView;
 import android.widget.ToggleButton;
 
-public class EditActivity extends Activity implements OnItemSelectedListener, OnItemClickListener {
+public class EditActivity extends Activity {
+	private static final String SAVE_SELECTED_SSID = "save_selected_ssid";
+	private static final String SAVE_SHOW_TOAST = "save_show_toast";
 
 	private String mSelectedSSID;
 	private ListView mWifiListView;
 	private ToggleButton mWifiButton;
+	private CheckBox mShowToastCheckbox;
 	private Button mSelectButton;
 	private Button mCancelButton;
 	private boolean mCanceled;
@@ -39,22 +43,31 @@ public class EditActivity extends Activity implements OnItemSelectedListener, On
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		// receive intent and extra data
-		Intent intent = getIntent();
-		if (!com.twofortyfouram.locale.api.Intent.ACTION_EDIT_SETTING.equals(intent.getAction())) {
-			super.finish();
-			return;
-		}
-
-		Bundle bundle = getIntent().getBundleExtra(com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE);
-
 		mSelectedSSID = null;
-		if (bundle != null) {
-			mSelectedSSID = bundle.getString(Constants.BUNDLE_AP_SSID);
+		boolean showToast = true;
+
+		if (savedInstanceState == null) {
+			// receive intent and extra data
+			Intent intent = getIntent();
+			if (!com.twofortyfouram.locale.api.Intent.ACTION_EDIT_SETTING.equals(intent.getAction())) {
+				super.finish();
+				return;
+			}
+
+			Bundle bundle = getIntent().getBundleExtra(com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE);
+
+			if (bundle != null) {
+				mSelectedSSID = bundle.getString(Constants.BUNDLE_AP_SSID);
+				showToast = bundle.getBoolean(Constants.BUNDLE_SHOWTOAST, true);
+			}
 		}
-		if (mSelectedSSID == null) {
+		else {
+			mSelectedSSID = savedInstanceState.getString(SAVE_SELECTED_SSID);
+			showToast = savedInstanceState.getBoolean(SAVE_SHOW_TOAST,true);
+		}
+		if (mSelectedSSID == null)
 			mSelectedSSID = "";
-		}
+
 
 		mCanceled = false;
 
@@ -62,6 +75,7 @@ public class EditActivity extends Activity implements OnItemSelectedListener, On
 		setContentView(R.layout.activity_edit);
 		mWifiListView = (ListView)findViewById(R.id.SSIDList);
 		mWifiButton = (ToggleButton)findViewById(R.id.wifi_button);
+		mShowToastCheckbox = (CheckBox)findViewById(R.id.showtoast);
 		mSelectButton = (Button)findViewById(R.id.select_button);
 		mCancelButton = (Button)findViewById(R.id.cancel_button);
 
@@ -70,23 +84,26 @@ public class EditActivity extends Activity implements OnItemSelectedListener, On
 		mWifiButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView,
-					boolean isChecked) {
+										 boolean isChecked) {
 				setWifiEnable(isChecked);
 			}
 		});
 
 		mWifiButton.setChecked(wifi.isWifiEnabled());
+		mShowToastCheckbox.setChecked(showToast);
 
 		mSelectButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onSelectClick((Button)v);
+				mCanceled = false;
+				finish();
 			}
 		});
 		mCancelButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onCancelClick((Button)v);
+				mCanceled = true;
+				finish();
 			}
 		});
 
@@ -102,42 +119,44 @@ public class EditActivity extends Activity implements OnItemSelectedListener, On
 				if (!WifiManager.WIFI_STATE_CHANGED_ACTION.equals(intent.getAction())) {
 					return;
 				}
-				onWifiStateChanged(intent);
+				int state = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN);
+				switch (state) {
+					case WifiManager.WIFI_STATE_ENABLED:
+					case WifiManager.WIFI_STATE_DISABLED:
+						updateWifiList();
+				}
 			}
-
 		};
 
-		getApplicationContext().registerReceiver(mBroadcastReceiver,WIFI_STATE_CHANGED);
+		getApplicationContext().registerReceiver(mBroadcastReceiver, WIFI_STATE_CHANGED);
 
 		updateWifiList();
 
-	};
+	}
 	
 	@Override
 	protected void onPause() {
 		super.onPause();
 		
 		getApplicationContext().unregisterReceiver(mBroadcastReceiver);
-	};
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putString(SAVE_SELECTED_SSID, mSelectedSSID);
+		outState.putBoolean(SAVE_SHOW_TOAST, mShowToastCheckbox.isChecked());
+	}
 
 	@Override
     public void finish()
     {
-		int selPos = -1;
-		if (mWifiListView.getCount() > 0) {
-			selPos = mWifiListView.getCheckedItemPosition();
-		}
-		String ssid = null;
-		if (selPos >= 0) {
-			ssid = (String)mWifiListView.getAdapter().getItem(selPos);
-		}
-
         Intent resultIntent = new Intent();
-        if (! mCanceled && ssid != null && ssid.length() > 0) {
+        if (! mCanceled && mSelectedSSID != null && mSelectedSSID.length() > 0) {
             Bundle resultBundle = new Bundle();
-            resultBundle.putString(Constants.BUNDLE_AP_SSID, ssid);
-
-            resultIntent.putExtra(com.twofortyfouram.locale.api.Intent.EXTRA_STRING_BLURB, ssid);
+            resultBundle.putString(Constants.BUNDLE_AP_SSID, mSelectedSSID);
+			resultBundle.putBoolean(Constants.BUNDLE_SHOWTOAST, mShowToastCheckbox.isChecked());
+            resultIntent.putExtra(com.twofortyfouram.locale.api.Intent.EXTRA_STRING_BLURB, mSelectedSSID);
             resultIntent.putExtra(com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE, resultBundle);
 
             setResult(RESULT_OK, resultIntent);
@@ -148,17 +167,6 @@ public class EditActivity extends Activity implements OnItemSelectedListener, On
     	super.finish();
     }
 
-	@Override
-	public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-	}
-
-	@Override
-	public void onNothingSelected(AdapterView<?> parent) {
-	}
-
-	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-	}
 
 	private void setWifiEnable(boolean enabled) {
 		getWifiManager().setWifiEnabled(enabled);
@@ -195,26 +203,16 @@ public class EditActivity extends Activity implements OnItemSelectedListener, On
 		wifiListView.setAdapter(adapter);
 		wifiListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		wifiListView.setItemChecked(selPos, true);
-		wifiListView.setOnItemSelectedListener(this);
-		wifiListView.setOnItemClickListener(this);
-	}
+		wifiListView.setOnItemSelectedListener(new OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				mSelectedSSID = ((WifiConfiguration)parent.getAdapter().getItem(position)).SSID;
+			}
 
-	private void onSelectClick(Button b) {
-		mCanceled = false;
-		finish();
-	}
-
-	private void onCancelClick(Button b) {
-		mCanceled = true;
-		finish();
-	}
-
-	private void onWifiStateChanged(Intent intent) {
-		int state = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN);
-		switch (state) {
-		case WifiManager.WIFI_STATE_ENABLED:
-		case WifiManager.WIFI_STATE_DISABLED:
-			updateWifiList();
-		}
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+				mSelectedSSID = "";
+			}
+		});
 	}
 }
