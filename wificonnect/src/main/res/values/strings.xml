@@ -12,7 +12,7 @@
     <string name="button_close">Close</string>
     <string name="show_toast">Toast</string>
     <string name="title_activity_edit">WiFi Connect</string>
-    <string name="msg_wifi_disable">Wifi disable</string>
+    <string name="msg_wifi_disable">WiFi is disabled</string>
     <string name="msg_connecting">Connecting %1$s</string>
     <string name="msg_connected">Connected %1$s</string>
     <string name="msg_already_connect">Already connect %1$s</string> 

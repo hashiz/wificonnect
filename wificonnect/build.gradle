@@ -6,12 +6,7 @@ apply plugin: 'com.android.application'
 
 android {
     signingConfigs {
-        hashiz {
-            keyAlias 'hashiz'
-            storeFile file('/home/hashiz/android/keystore/hashiz.keystore')
-            keyPassword 'jitte5i'
-            storePassword 'jitte5i'
-        }
+
     }
     compileSdkVersion 17
     buildToolsVersion "23.0.1"
@@ -24,10 +19,8 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-            signingConfig signingConfigs.hashiz
         }
         debug {
-            signingConfig signingConfigs.hashiz
         }
     }
 }
