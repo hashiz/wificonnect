@@ -10,7 +10,9 @@
     <string name="button_select">Select</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_close">Close</string>
-    <string name="show_toast">Toast</string>
+    <string name="show_toast">Show toast when action toriggerd</string>
+    <string name="edit_Ssid_hint">Input SSID in string</string>
+    <string name="pick_ssid">Pick SSID</string>
     <string name="title_activity_edit">WiFi Connect</string>
     <string name="msg_wifi_disable">WiFi is disabled</string>
     <string name="msg_connecting">Connecting %1$s</string>

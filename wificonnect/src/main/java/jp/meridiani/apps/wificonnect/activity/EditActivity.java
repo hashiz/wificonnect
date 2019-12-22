@@ -28,6 +28,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.EditText;
+import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -36,6 +38,7 @@ public class EditActivity extends Activity implements ActivityCompat.OnRequestPe
 	private static final String SAVE_SELECTED_SSID = "save_selected_ssid";
 	private static final String SAVE_SHOW_TOAST = "save_show_toast";
 	private static final int REQUEST_PERMISSIONS = 1;
+	private static final int PICK_WIFI_NETWORK = 2;
 
 	private String mSelectedSSID;
 	private ListView mWifiListView;
@@ -43,6 +46,8 @@ public class EditActivity extends Activity implements ActivityCompat.OnRequestPe
 	private CheckBox mShowToastCheckbox;
 	private Button mSelectButton;
 	private Button mCancelButton;
+	private Button mPickSsidButton;
+	private EditText mDesireSsidText;
 	private boolean mCanceled;
 	private static final IntentFilter WIFI_STATE_CHANGED = new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION);
 	private BroadcastReceiver mBroadcastReceiver;
@@ -81,11 +86,12 @@ public class EditActivity extends Activity implements ActivityCompat.OnRequestPe
 
 		// set view
 		setContentView(R.layout.activity_edit);
-		mWifiListView = (ListView)findViewById(R.id.SSIDList);
 		mWifiButton = (ToggleButton)findViewById(R.id.wifi_button);
 		mShowToastCheckbox = (CheckBox)findViewById(R.id.showtoast);
 		mSelectButton = (Button)findViewById(R.id.select_button);
 		mCancelButton = (Button)findViewById(R.id.cancel_button);
+		mPickSsidButton = (Button)findViewById(R.id.pick_ssid_button);
+		mDesireSsidText = (EditText)findViewById(R.id.desire_ssid_text);
 
 		WifiManager wifi = getWifiManager();
 
@@ -115,6 +121,12 @@ public class EditActivity extends Activity implements ActivityCompat.OnRequestPe
 			}
 		});
 
+		mPickSsidButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startActivityForResult(new Intent(WifiManager.ACTION_PICK_WIFI_NETWORK), PICK_WIFI_NETWORK);
+			}
+		});
 	}
 
 	@Override
@@ -141,26 +153,6 @@ public class EditActivity extends Activity implements ActivityCompat.OnRequestPe
 					requestPermissions.toArray(new String[requestPermissions.size()]),
 					REQUEST_PERMISSIONS);
 		}
-
-		mBroadcastReceiver = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				if (!WifiManager.WIFI_STATE_CHANGED_ACTION.equals(intent.getAction())) {
-					return;
-				}
-				int state = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN);
-				switch (state) {
-					case WifiManager.WIFI_STATE_ENABLED:
-					case WifiManager.WIFI_STATE_DISABLED:
-						updateWifiList();
-				}
-			}
-		};
-
-		getApplicationContext().registerReceiver(mBroadcastReceiver, WIFI_STATE_CHANGED);
-
-		updateWifiList();
-
 	}
 	
 	@Override
@@ -205,41 +197,6 @@ public class EditActivity extends Activity implements ActivityCompat.OnRequestPe
 		return (WifiManager)getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 	}
 
-	private void updateWifiList() {
-		WifiManager wifi = getWifiManager();
-
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-				android.R.layout.simple_list_item_single_choice);
-
-		int selPos = 0;
-		if (wifi.isWifiEnabled()) {
-			List<WifiConfiguration>wifiConfList = wifi.getConfiguredNetworks();
-			if (wifiConfList != null) {
-				for ( WifiConfiguration wifiConf : wifiConfList) {
-					adapter.add(wifiConf.SSID);
-					if (mSelectedSSID.equals(wifiConf.SSID)) {
-						selPos = adapter.getCount() - 1;
-					}
-				}
-			}
-		}
-
-
-		ListView wifiListView = (ListView)findViewById(R.id.SSIDList);
-		if (wifiListView == null) {
-			return;
-		}
-		wifiListView.setAdapter(adapter);
-		wifiListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-		wifiListView.setItemChecked(selPos, true);
-		wifiListView.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				mSelectedSSID = (String)parent.getAdapter().getItem(position);
-			}
-		});
-	}
-
 	@Override
 	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grants) {
 		switch (requestCode) {
@@ -251,6 +208,24 @@ public class EditActivity extends Activity implements ActivityCompat.OnRequestPe
 		for (int i = 0; i < permissions.length; i++) {
 			if (grants[i] != PackageManager.PERMISSION_GRANTED) {
 				Toast.makeText(this, permissions[i]+" require", Toast.LENGTH_SHORT);
+			}
+		}
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (requestCode) {
+			case PICK_WIFI_NETWORK:
+				break;
+			default:
+				return;
+		}
+		if (resultCode == RESULT_OK) {
+			Bundle b;
+			if ((b = data.getExtras()) != null) {
+				for (String key : b.keySet()) {
+					Toast.makeText(getApplicationContext(), key, Toast.LENGTH_LONG).show();
+				}
 			}
 		}
 	}

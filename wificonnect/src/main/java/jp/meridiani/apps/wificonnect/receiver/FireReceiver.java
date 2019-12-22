@@ -12,11 +12,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.net.NetworkRequest;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
+import android.net.wifi.WifiNetworkSpecifier;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -102,48 +108,72 @@ public class FireReceiver extends BroadcastReceiver {
     		showToast(context, context.getString(R.string.msg_wifi_disable), mShowToast);
     		return;
         }
-        List<WifiConfiguration>wifiList = wifi.getConfiguredNetworks();
-        if (wifiList == null) {
-    		showToast(context, context.getString(R.string.msg_wifi_disable), mShowToast);
-    		return;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+        	// API 28 (Android 9)
+			List<WifiConfiguration> wifiList = wifi.getConfiguredNetworks();
+			if (wifiList == null) {
+				showToast(context, context.getString(R.string.msg_wifi_disable), mShowToast);
+				return;
+			}
+			mDesireWifiConf = null;
+			int lastPriority = 0;
+			for (WifiConfiguration wifiConf : wifiList) {
+				if (ssid.equals(wifiConf.SSID)) {
+					if (wifiConf.status == WifiConfiguration.Status.CURRENT) {
+						showToast(context, context.getString(R.string.msg_already_connect, ssid), mShowToast);
+						return;
+					}
+					mDesireWifiConf = wifiConf;
+				}
+				if (wifiConf.priority > lastPriority) {
+					lastPriority = wifiConf.priority;
+				}
+			}
+			if (mDesireWifiConf == null) {
+				showToast(context, context.getString(R.string.msg_not_configured, ssid), mShowToast);
+				return;
+			}
+			showToast(context, context.getString(R.string.msg_connecting, mDesireWifiConf.SSID), mShowToast);
+
+			// set priority to top
+			mDesireWifiConf.priority = lastPriority + 1;
+			wifi.updateNetwork(mDesireWifiConf);
+			wifi.saveConfiguration();
+
+			// disable other networks
+			wifi.enableNetwork(mDesireWifiConf.networkId, true);
+			mReset = true;
+
+			// register
+			context.getApplicationContext().registerReceiver(new StateReceiver(), mFilter);
+
+			wifi.reconnect();
+
+			// timer start
+			AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+			alarm.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 15000, makePendingIntent(context));
+		}
+        else {
+			// API 29 (Android 10)
+			ssid = ssid.replaceAll("^\"","");
+			ssid = ssid.replaceAll("\"$","");
+			WifiNetworkSpecifier.Builder wifiNetworkSpecifierBuilder = new WifiNetworkSpecifier.Builder();
+			wifiNetworkSpecifierBuilder.setSsid(ssid);
+			WifiNetworkSpecifier wifiNetworkSpecifier = wifiNetworkSpecifierBuilder.build();
+			NetworkRequest.Builder networkRequestBuilder = new NetworkRequest.Builder();
+			networkRequestBuilder.addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
+			networkRequestBuilder.setNetworkSpecifier(wifiNetworkSpecifier);
+			NetworkRequest networkRequest= networkRequestBuilder.build();
+			ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+			if (cm != null) {
+				cm.requestNetwork(networkRequest,new ConnectivityManager.NetworkCallback() {
+					@Override
+					public void onAvailable(@NonNull Network network) {
+						super.onAvailable(network);
+					}
+				});
+			}
         }
-        mDesireWifiConf = null;
-        int lastPriority = 0;
-        for (WifiConfiguration wifiConf : wifiList) {
-        	if (ssid.equals(wifiConf.SSID)) {
-        		if (wifiConf.status == WifiConfiguration.Status.CURRENT) {
-            		showToast(context, context.getString(R.string.msg_already_connect, ssid), mShowToast);
-            		return;
-        		}
-        		mDesireWifiConf = wifiConf;
-        	}
-        	if (wifiConf.priority > lastPriority) {
-        		lastPriority = wifiConf.priority;
-        	}
-        }
-        if (mDesireWifiConf == null) {
-    		showToast(context, context.getString(R.string.msg_not_configured, ssid), mShowToast);
-        	return;
-        }
-		showToast(context, context.getString(R.string.msg_connecting, mDesireWifiConf.SSID), mShowToast);
-
-		// set priority to top
-		mDesireWifiConf.priority = lastPriority + 1;
-		wifi.updateNetwork(mDesireWifiConf);
-		wifi.saveConfiguration();
-		
-		// disable other networks
-        wifi.enableNetwork(mDesireWifiConf.networkId, true);
-        mReset = true;
-
-		// register
-		context.getApplicationContext().registerReceiver(new StateReceiver(), mFilter);
-
-        wifi.reconnect();
-
-        // timer start
-        AlarmManager alarm = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        alarm.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 15000, makePendingIntent(context));
     }
 
     private PendingIntent makePendingIntent(Context context) {
