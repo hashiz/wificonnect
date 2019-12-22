@@ -1,17 +1,23 @@
 package jp.meridiani.apps.wificonnect.activity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jp.meridiani.apps.wificonnect.Constants;
 import jp.meridiani.apps.wificonnect.R;
+
+import android.Manifest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -23,11 +29,13 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ListView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
-public class EditActivity extends Activity {
+public class EditActivity extends Activity implements ActivityCompat.OnRequestPermissionsResultCallback {
 	private static final String SAVE_SELECTED_SSID = "save_selected_ssid";
 	private static final String SAVE_SHOW_TOAST = "save_show_toast";
+	private static final int REQUEST_PERMISSIONS = 1;
 
 	private String mSelectedSSID;
 	private ListView mWifiListView;
@@ -112,6 +120,27 @@ public class EditActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+
+		String[] requirePermissions = {
+				Manifest.permission.ACCESS_WIFI_STATE,
+				Manifest.permission.CHANGE_WIFI_STATE,
+				Manifest.permission.ACCESS_NETWORK_STATE,
+				Manifest.permission.ACCESS_COARSE_LOCATION
+		};
+
+		ArrayList<String> requestPermissions = new ArrayList<String>();
+
+		for (String permission : requirePermissions) {
+			if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+				requestPermissions.add(permission);
+			}
+		}
+		if (!requestPermissions.isEmpty()) {
+			ActivityCompat.requestPermissions(
+					this,
+					requestPermissions.toArray(new String[requestPermissions.size()]),
+					REQUEST_PERMISSIONS);
+		}
 
 		mBroadcastReceiver = new BroadcastReceiver() {
 			@Override
@@ -209,5 +238,20 @@ public class EditActivity extends Activity {
 				mSelectedSSID = (String)parent.getAdapter().getItem(position);
 			}
 		});
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grants) {
+		switch (requestCode) {
+			case REQUEST_PERMISSIONS:
+				break;
+			default:
+				return;
+		}
+		for (int i = 0; i < permissions.length; i++) {
+			if (grants[i] != PackageManager.PERMISSION_GRANTED) {
+				Toast.makeText(this, permissions[i]+" require", Toast.LENGTH_SHORT);
+			}
+		}
 	}
 }

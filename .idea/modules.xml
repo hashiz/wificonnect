@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/wificonnect.iml" filepath="$PROJECT_DIR$/wificonnect.iml" />
+      <module fileurl="file://$PROJECT_DIR$/StudioProjects-wificonnect.iml" filepath="$PROJECT_DIR$/StudioProjects-wificonnect.iml" />
       <module fileurl="file://$PROJECT_DIR$/wificonnect/wificonnect-wificonnect.iml" filepath="$PROJECT_DIR$/wificonnect/wificonnect-wificonnect.iml" />
     </modules>
   </component>

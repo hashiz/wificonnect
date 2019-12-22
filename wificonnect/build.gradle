@@ -8,12 +8,11 @@ android {
     signingConfigs {
 
     }
-    compileSdkVersion 17
-    buildToolsVersion "23.0.1"
+    compileSdkVersion 29
     defaultConfig {
         applicationId "jp.meridiani.apps.wificonnect"
-        minSdkVersion 8
-        targetSdkVersion 18
+        minSdkVersion 18
+        targetSdkVersion 29
     }
     buildTypes {
         release {
@@ -23,15 +22,22 @@ android {
         debug {
         }
     }
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
 }
 
-repositories {
-    maven {
-        url 'http://dl.bintray.com/twofortyfouram/maven'
+allprojects {
+    repositories {
+        google()
+        maven {
+            url 'http://dl.bintray.com/twofortyfouram/maven'
+        }
     }
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:18.0.0'
-    compile 'com.twofortyfouram:android-plugin-api-for-locale:[1.0.2,2.0]'
+    implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'com.twofortyfouram:android-plugin-api-for-locale:1.0.4'
 }
