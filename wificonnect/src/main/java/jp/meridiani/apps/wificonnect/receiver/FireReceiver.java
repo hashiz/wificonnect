@@ -4,13 +4,17 @@ import java.util.List;
 
 import jp.meridiani.apps.wificonnect.Constants;
 import jp.meridiani.apps.wificonnect.R;
+import jp.meridiani.apps.wificonnect.activity.MainScreenActivity;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -23,6 +27,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -32,6 +38,7 @@ public class FireReceiver extends BroadcastReceiver {
 	private boolean           mReset;
 	private WifiConfiguration mDesireWifiConf;
 	private boolean           mShowToast;
+	private final static int  REQUEST_CHANGE_NETWORK_STATE_PERMISSION = 1;
 
 	public class StateReceiver extends BroadcastReceiver {
 		public StateReceiver() {
@@ -103,12 +110,13 @@ public class FireReceiver extends BroadcastReceiver {
 
         mReset = false;
 
-        WifiManager wifi = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
-        if (!wifi.isWifiEnabled()) {
-    		showToast(context, context.getString(R.string.msg_wifi_disable), mShowToast);
-    		return;
-        }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+		WifiManager wifi = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
+		if (!wifi.isWifiEnabled()) {
+			showToast(context, context.getString(R.string.msg_wifi_disable), mShowToast);
+			return;
+		}
+
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
         	// API 28 (Android 9)
 			List<WifiConfiguration> wifiList = wifi.getConfiguredNetworks();
 			if (wifiList == null) {
@@ -155,6 +163,10 @@ public class FireReceiver extends BroadcastReceiver {
 		}
         else {
 			// API 29 (Android 10)
+			// check permission
+			if (ContextCompat.checkSelfPermission(context, Manifest.permission.CHANGE_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED) {
+				context.startActivity(new Intent(context, MainScreenActivity.class));
+			}
 			ssid = ssid.replaceAll("^\"","");
 			ssid = ssid.replaceAll("\"$","");
 			WifiNetworkSpecifier.Builder wifiNetworkSpecifierBuilder = new WifiNetworkSpecifier.Builder();

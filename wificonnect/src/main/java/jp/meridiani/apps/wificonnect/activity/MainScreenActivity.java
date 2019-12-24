@@ -1,19 +1,28 @@
 package jp.meridiani.apps.wificonnect.activity;
 
 import jp.meridiani.apps.wificonnect.R;
+
+import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.content.pm.PackageInfo;
+import android.widget.Toast;
 
-public class MainScreenActivity extends Activity {
+import java.util.ArrayList;
+
+public class MainScreenActivity extends Activity implements ActivityCompat.OnRequestPermissionsResultCallback {
 	Button mCloseButton;
 	String mVersionName = "";
 	int mVersionCode = 0;
+	private final static int REQUEST_PERMISSION_ON_START = 1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -24,11 +33,10 @@ public class MainScreenActivity extends Activity {
 			PackageInfo pkgInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
 			mVersionName = pkgInfo.versionName;
 			mVersionCode = pkgInfo.versionCode;
-		}
-		catch (PackageManager.NameNotFoundException e) {
+		} catch (PackageManager.NameNotFoundException e) {
 			e.printStackTrace();
 		}
-		mCloseButton = (Button)findViewById(R.id.close_button);
+		mCloseButton = (Button) findViewById(R.id.close_button);
 		mCloseButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -41,12 +49,36 @@ public class MainScreenActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 
-		TextView version = (TextView)findViewById(R.id.versionName);
+		TextView version = (TextView) findViewById(R.id.versionName);
 		version.setText(String.format("%s(%d)", mVersionName, mVersionCode));
+		PackageInfo packageInfo = null;
+
+		try {
+			packageInfo = getPackageManager().getPackageInfo(getPackageName(),PackageManager.GET_PERMISSIONS);
+		}
+		catch (PackageManager.NameNotFoundException e) {
+			return;
+		}
+		ArrayList<String> lessPermissions = new ArrayList<String>();
+		for (String permission : packageInfo.requestedPermissions) {
+			if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+				lessPermissions.add(permission);
+			}
+		}
+		if (!lessPermissions.isEmpty()) {
+			ActivityCompat.requestPermissions(
+					this,
+					lessPermissions.toArray(new String[lessPermissions.size()]),
+					REQUEST_PERMISSION_ON_START);
+		}
 	}
 
 	@Override
-	protected void onPostCreate(Bundle savedInstanceState) {
-		super.onPostCreate(savedInstanceState);
+	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+		if (permissions.length > 0) {
+			for (int i = 0; i < permissions.length; i++) {
+				Toast.makeText(this, permissions[i] + " is require", Toast.LENGTH_LONG);
+			}
+		}
 	}
 }
